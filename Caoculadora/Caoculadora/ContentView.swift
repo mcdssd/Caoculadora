@@ -14,8 +14,8 @@ struct ContentView: View {
     //declarar a var como opcional faz com que se inicie com o campo do text field limpo
     @State var months: Int? = nil
     @State var result: Int?
-    let portes = ["Pequeno", "Médio", "Grande"]
-    @State var porte: String = "Pequeno"
+    @State var porteSelecionado: Porte = .pequeno
+    
     
     var body: some View {
         VStack (alignment: .leading){
@@ -25,19 +25,26 @@ struct ContentView: View {
             
             Spacer()
             Text("Qual a idade do seu cão?")
-                .font(.system(size: 24))
+                .font(.header5)
                 //estabelece o tamanho da fonte do título
-            
+
+//MARK: Text Field Meses e Anos
+
             Text("Anos")
+                .font(.body1)
             TextField("Digite quantos anos completos seu cão tem...", value: $years, format: .number)
             
             Text("Meses")
+                .font(.body1)
             TextField("E quantos meses, além disso, ele tem.", value: $months, format: .number)
             
             Text("Porte")
-            Picker("Porte", selection: $porte) {
-                ForEach(portes, id: \.self) { porte in
-                    Text(porte)
+                .font(.body1)
+            
+//MARK: Segmented Control
+            Picker("Porte", selection: $porteSelecionado) {
+                ForEach(Porte.allCases, id: \.self) { porte in
+                    Text(porte.rawValue)
                         .tag(porte)
                     // a tag serve para que o porte selecionado apareça no lugar do array de portes
                 }
@@ -45,26 +52,30 @@ struct ContentView: View {
             .pickerStyle(.segmented)
             
             
-            Divider()
-                .background(.gray)
+//            Divider()
+//                .background(.gray)
+            //
+            
             Spacer()
             
+//MARK: Alternando imagem e texto
             if let result {
                 EmptyView()
                 Text("Seu cachorro tem, em idade humana...")
                     .foregroundColor(Color.blue)
                     .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
                     //centraliza o texto
-                    .font(.system(size: 20))
+                    .font(.body1)
                     .padding(.bottom, 20)
+                //MARK: Formatação texto
                 
                 Text("\(result) anos")
-                    .font(.system(size: 45))
+                    .font(.display)
                     .foregroundColor(Color.blue)
                     .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
-
-
-            } 
+            }
+            
+            //MARK: Formatação imagem
             else {
                 Image(ImageResource.clarinha)
                     .resizable()
@@ -75,9 +86,10 @@ struct ContentView: View {
                     .frame(maxWidth: .infinity)
                     //especifiquei que a largura pode ser máxima dada a escala
                     .shadow(radius: 20)
+
             }
 
-            
+//MARK: Botão
             Spacer()
             Button(action: {
                 //comportamento do botão
@@ -88,6 +100,7 @@ struct ContentView: View {
                     Text("Cãocular")
                         .foregroundStyle(.white)
                         //mudando a cor do texto do botão
+                        .font(.body1)
                 }
                 .cornerRadius(12)
             })
@@ -102,6 +115,8 @@ struct ContentView: View {
         .padding()
     }
     
+    //MARK: Cálculo
+    
     func processYears() {
         
         guard let years,
@@ -113,17 +128,23 @@ struct ContentView: View {
         }
         //guard é outra maneira de desempacotar a variável opcional
         
-        guard years > 0 || months > 0 else {
+        guard years > 0 || months > 0
+        else {
             print("Algum campo tem que ter valor maior que zero")
             return
         }
         
-        result = years * 7 + months*7/12
+        guard months <= 12
+        else {
+            print("Os meses não podem ser maior que 11.")
+            return
+        }
         
-//        if let years{
-//            result = 23
-//        }
-        //uma maneira de desempacotar a variável opcional
+        result =
+        porteSelecionado
+            .conversaoDeIdade(
+                years: years, months: months
+            )
     }
 }
 
